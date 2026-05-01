@@ -3,9 +3,9 @@ import { useCallback, useEffect, useRef } from 'react';
 import { usePractice } from '@/hooks/usePractice';
 import { useAudio } from '@/hooks/useAudio';
 import { PaperSheet } from '@/components/PaperSheet';
-import { SentenceDisplay } from '@/components/SentenceDisplay';
+import { InteractiveSentence } from '@/components/InteractiveSentence';
 import { PlayButton } from '@/components/PlayButton';
-import { WordInput } from '@/components/WordInput';
+import { ReplayButton } from '@/components/ReplayButton';
 import { FeedbackReport } from '@/components/FeedbackReport';
 import { StatsBar } from '@/components/StatsBar';
 import { ProgressBar } from '@/components/ProgressBar';
@@ -17,8 +17,6 @@ export default function Home() {
     currentIndex,
     totalSentences,
     phase,
-    userInput,
-    setUserInput,
     feedback,
     isLoading,
     error,
@@ -69,14 +67,11 @@ export default function Home() {
     nextSentence();
   }, [nextSentence]);
 
-  const showSentence = phase === 'idle' || phase === 'listening';
-  const showPlayButton = phase === 'idle' || phase === 'listening' || phase === 'typing';
-  const showInput = phase === 'typing';
+  const showPlayButton = phase === 'idle';
+  const showInput = phase === 'typing' || phase === 'listening';
   const showFeedback = phase === 'feedback' && feedback;
   const showNext = phase === 'feedback';
-
-  const currentWordValue = wordInputs[currentWordIndex] ?? '';
-  const currentWordTarget = words[currentWordIndex] ?? '';
+  const showReplay = phase === 'listening' || phase === 'typing' || phase === 'feedback';
 
   return (
     <main className="flex min-h-screen flex-col items-center px-4 py-8 md:px-12 md:py-16">
@@ -85,12 +80,17 @@ export default function Home() {
       </h1>
 
       <PaperSheet className="px-8 py-8 md:px-10 md:py-10">
-        {showSentence && (
+        {showInput && (
           <div className="mb-6">
-            <SentenceDisplay
+            <InteractiveSentence
               words={words}
               currentWordIndex={currentWordIndex}
+              wordInputs={wordInputs}
               wordStatuses={wordStatuses}
+              onChange={updateCurrentWord}
+              onConfirm={confirmWord}
+              onGoBack={goBackWord}
+              disabled={isLoading || phase === 'listening'}
             />
           </div>
         )}
@@ -100,20 +100,16 @@ export default function Home() {
             <PlayButton
               isPlaying={isPlaying}
               isLoading={audioLoading}
-              onClick={isPlaying ? handleReplay : handlePlay}
+              onClick={handlePlay}
             />
           </div>
         )}
 
-        {showInput && phase === 'typing' && (
-          <div className="mb-2">
-            <WordInput
-              targetWord={currentWordTarget}
-              value={currentWordValue}
-              onChange={updateCurrentWord}
-              onConfirm={confirmWord}
-              onGoBack={goBackWord}
-              disabled={isLoading}
+        {showReplay && (
+          <div className="mb-6 flex justify-center">
+            <ReplayButton
+              onClick={handleReplay}
+              disabled={isPlaying || audioLoading}
             />
           </div>
         )}
