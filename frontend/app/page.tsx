@@ -1,12 +1,11 @@
 'use client';
-import { useCallback } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { usePractice } from '@/hooks/usePractice';
 import { useAudio } from '@/hooks/useAudio';
 import { PaperSheet } from '@/components/PaperSheet';
 import { SentenceDisplay } from '@/components/SentenceDisplay';
 import { PlayButton } from '@/components/PlayButton';
-import { TypingInput } from '@/components/TypingInput';
-import { SubmitButton } from '@/components/SubmitButton';
+import { WordInput } from '@/components/WordInput';
 import { FeedbackReport } from '@/components/FeedbackReport';
 import { StatsBar } from '@/components/StatsBar';
 import { ProgressBar } from '@/components/ProgressBar';
@@ -28,9 +27,32 @@ export default function Home() {
     startTyping,
     submitAnswer,
     nextSentence,
+    words,
+    currentWordIndex,
+    wordInputs,
+    wordStatuses,
+    isAllWordsDone,
+    updateCurrentWord,
+    confirmWord,
+    goBackWord,
   } = usePractice();
 
   const { play: playAudio, replay, isPlaying, isLoading: audioLoading } = useAudio();
+
+  const submittedRef = useRef(false);
+
+  useEffect(() => {
+    if (isAllWordsDone && phase === 'typing' && !submittedRef.current) {
+      submittedRef.current = true;
+      submitAnswer();
+    }
+  }, [isAllWordsDone, phase, submitAnswer]);
+
+  useEffect(() => {
+    if (phase !== 'typing') {
+      submittedRef.current = false;
+    }
+  }, [phase]);
 
   const handlePlay = useCallback(async () => {
     if (!currentSentence) return;
@@ -43,12 +65,6 @@ export default function Home() {
     replay();
   }, [replay]);
 
-  const handleSubmit = useCallback(() => {
-    if (userInput.trim()) {
-      submitAnswer();
-    }
-  }, [userInput, submitAnswer]);
-
   const handleNext = useCallback(() => {
     nextSentence();
   }, [nextSentence]);
@@ -56,10 +72,12 @@ export default function Home() {
   const showSentence = phase === 'idle' || phase === 'listening';
   const showPlayButton = phase === 'idle' || phase === 'listening' || phase === 'typing';
   const showInput = phase === 'typing' || phase === 'checking';
-  const showSubmit = phase === 'typing' && userInput.trim().length > 0;
   const showFeedback = phase === 'feedback' && feedback;
   const showNext = phase === 'feedback';
   const isInputDimmed = phase === 'typing';
+
+  const currentWordValue = wordInputs[currentWordIndex] ?? '';
+  const currentWordTarget = words[currentWordIndex] ?? '';
 
   return (
     <main className="flex min-h-screen flex-col items-center px-4 py-8 md:px-12 md:py-16">
@@ -71,7 +89,9 @@ export default function Home() {
         {showSentence && (
           <div className="mb-6">
             <SentenceDisplay
-              sentence={currentSentence?.text ?? null}
+              words={words}
+              currentWordIndex={currentWordIndex}
+              wordStatuses={wordStatuses}
               dimmed={isInputDimmed}
             />
           </div>
@@ -87,24 +107,17 @@ export default function Home() {
           </div>
         )}
 
-        {showInput && (
+        {showInput && phase === 'typing' && (
           <div className="mb-2">
-            <TypingInput
-              value={userInput}
-              onChange={setUserInput}
+            <WordInput
+              targetWord={currentWordTarget}
+              value={currentWordValue}
+              onChange={updateCurrentWord}
+              onConfirm={confirmWord}
+              onGoBack={goBackWord}
               disabled={isLoading}
-              onSubmit={handleSubmit}
-              placeholder="Start typing what you heard..."
             />
           </div>
-        )}
-
-        {showSubmit && (
-          <SubmitButton
-            onClick={handleSubmit}
-            disabled={userInput.trim().length === 0}
-            isLoading={isLoading}
-          />
         )}
 
         {error && (
@@ -139,7 +152,7 @@ export default function Home() {
       )}
 
       <p className="mt-8 font-serif text-xs text-ink-faded">
-        Press Enter to submit &middot; Listen, type, learn.
+        Press Space to confirm &middot; Backspace to go back &middot; Listen, type, learn.
       </p>
     </main>
   );
