@@ -185,12 +185,9 @@ def build_report(
             orig_user = user_original[user_idx] if user_idx < len(user_original) else user_token
 
             if user_token == target_token:
-                if orig_target == orig_user:
-                    status = "correct"
-                    correct += 1
-                else:
-                    status = "ignored_by_case_or_punct"
-                    ignored += 1
+                # 内容正确即算对，大小写/标点差异不影响
+                status = "correct"
+                correct += 1
             else:
                 status = "wrong"
                 wrong += 1
