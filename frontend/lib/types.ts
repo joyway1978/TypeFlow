@@ -1,4 +1,4 @@
-export type WordStatus = 'pending' | 'correct' | 'wrong';
+export type WordStatus = 'pending' | 'correct' | 'ignored_by_case_or_punct' | 'wrong';
 
 export type TokenStatus = 'correct' | 'ignored_by_case_or_punct' | 'wrong';
 

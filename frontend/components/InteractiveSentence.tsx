@@ -68,6 +68,16 @@ export function InteractiveSentence({
           );
         }
 
+        // 大小写/标点差异：显示用户输入（灰色）
+        if (status === 'ignored_by_case_or_punct') {
+          return (
+            <span key={index}>
+              <span className="text-pencil-grey">{wordInputs[index]}</span>
+              {index < words.length - 1 && ' '}
+            </span>
+          );
+        }
+
         // 错误词：显示用户输入
         if (status === 'wrong') {
           return (
