@@ -76,30 +76,34 @@ export function useApplauseSound() {
   const play = useCallback(() => {
     if (!enabled) return;
 
-    if (!audioContextRef.current) {
-      audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+    try {
+      if (!audioContextRef.current) {
+        audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+      }
+
+      const ctx = audioContextRef.current;
+      if (ctx.state === 'suspended') {
+        ctx.resume().catch(() => {});
+      }
+
+      const now = ctx.currentTime;
+
+      // 5次拍手叠加，时间/频率/声相/增益各异
+      const claps = [
+        { delay: 0.0, freqOffset: 0, pan: -0.3, gain: 0.4 },
+        { delay: 0.02, freqOffset: 50, pan: 0.2, gain: 0.35 },
+        { delay: 0.04, freqOffset: -30, pan: -0.5, gain: 0.38 },
+        { delay: 0.06, freqOffset: 80, pan: 0.4, gain: 0.32 },
+        { delay: 0.08, freqOffset: -50, pan: 0.0, gain: 0.36 },
+      ];
+
+      claps.forEach(clap => {
+        const centerFreq = 1200 + clap.freqOffset + (Math.random() * 400 - 200);
+        playClap(ctx, now + clap.delay, centerFreq, clap.pan, clap.gain);
+      });
+    } catch {
+      // 静默失败，不中断用户体验
     }
-
-    const ctx = audioContextRef.current;
-    if (ctx.state === 'suspended') {
-      ctx.resume();
-    }
-
-    const now = ctx.currentTime;
-
-    // 5次拍手叠加，时间/频率/声相/增益各异
-    const claps = [
-      { delay: 0.0, freqOffset: 0, pan: -0.3, gain: 0.4 },
-      { delay: 0.02, freqOffset: 50, pan: 0.2, gain: 0.35 },
-      { delay: 0.04, freqOffset: -30, pan: -0.5, gain: 0.38 },
-      { delay: 0.06, freqOffset: 80, pan: 0.4, gain: 0.32 },
-      { delay: 0.08, freqOffset: -50, pan: 0.0, gain: 0.36 },
-    ];
-
-    claps.forEach(clap => {
-      const centerFreq = 1200 + clap.freqOffset + (Math.random() * 400 - 200);
-      playClap(ctx, now + clap.delay, centerFreq, clap.pan, clap.gain);
-    });
   }, [enabled, playClap]);
 
   return { play, enabled, toggle };
