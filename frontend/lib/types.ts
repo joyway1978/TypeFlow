@@ -1,3 +1,5 @@
+export type WordStatus = 'pending' | 'correct' | 'wrong';
+
 export type TokenStatus = 'correct' | 'ignored_by_case_or_punct' | 'wrong';
 
 export interface CheckReportItem {
