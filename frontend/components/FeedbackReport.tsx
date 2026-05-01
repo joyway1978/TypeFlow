@@ -8,7 +8,7 @@ interface FeedbackReportProps {
 
 export function FeedbackReport({ feedback }: FeedbackReportProps) {
   return (
-    <div className="mt-6 animate-scale-in">
+    <div className="mt-6 animate-scale-in" data-testid="feedback-report-container">
       <div className="flex flex-wrap justify-center gap-x-1 gap-y-3">
         {feedback.report.map((item, index) => (
           <FeedbackWord
