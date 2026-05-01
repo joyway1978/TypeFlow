@@ -2,7 +2,6 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { usePractice } from '@/hooks/usePractice';
 import { useAudio } from '@/hooks/useAudio';
-import { useApplauseSound } from '@/hooks/useApplauseSound';
 import { PaperSheet } from '@/components/PaperSheet';
 import { InteractiveSentence } from '@/components/InteractiveSentence';
 import { ReplayButton } from '@/components/ReplayButton';
@@ -33,11 +32,11 @@ export default function Home() {
     updateCurrentWord,
     confirmWord,
     goBackWord,
+    applauseEnabled,
+    toggleApplause,
   } = usePractice();
 
   const { play: playAudio, replay, isPlaying, isLoading: audioLoading } = useAudio();
-
-  const { enabled: applauseEnabled, toggleSound: toggleApplause } = useApplauseSound();
 
   const submittedRef = useRef(false);
 

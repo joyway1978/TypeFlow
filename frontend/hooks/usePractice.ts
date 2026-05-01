@@ -19,7 +19,7 @@ export function usePractice() {
   const [wordInputs, setWordInputs] = useState<string[]>([]);
   const [wordStatuses, setWordStatuses] = useState<WordStatus[]>([]);
 
-  const { play: playApplause, enabled: applauseEnabled } = useApplauseSound();
+  const { play: playApplause, enabled: applauseEnabled, toggleSound: toggleApplause } = useApplauseSound();
 
   const currentSentence = sentences[currentIndex] ?? null;
 
@@ -153,5 +153,7 @@ export function usePractice() {
     updateCurrentWord,
     confirmWord,
     goBackWord,
+    applauseEnabled,
+    toggleApplause,
   };
 }
