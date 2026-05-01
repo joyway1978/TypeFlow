@@ -3,6 +3,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { sentences } from '@/lib/sentences';
 import { CheckResponse, PracticePhase, WordStatus } from '@/lib/types';
 import { fetchCheck } from '@/lib/api';
+import { useApplauseSound } from './useApplauseSound';
 
 export function usePractice() {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -17,6 +18,8 @@ export function usePractice() {
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [wordInputs, setWordInputs] = useState<string[]>([]);
   const [wordStatuses, setWordStatuses] = useState<WordStatus[]>([]);
+
+  const { play: playApplause, enabled: applauseEnabled } = useApplauseSound();
 
   const currentSentence = sentences[currentIndex] ?? null;
 
@@ -99,6 +102,11 @@ export function usePractice() {
       const result = await fetchCheck(currentSentence.text, fullInput);
       setFeedback(result);
       setPhase('feedback');
+
+      // 全部正确时播放掌声
+      if (result.summary.wrongCount === 0 && result.summary.correctCount > 0) {
+        playApplause();
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Check failed');
       setPhase('typing');
