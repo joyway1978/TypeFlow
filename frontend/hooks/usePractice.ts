@@ -104,7 +104,7 @@ export function usePractice() {
       setPhase('feedback');
 
       // 全部正确时播放掌声
-      if (result.summary.wrongCount === 0 && result.summary.correctCount > 0) {
+      if (result.summary.wrongCount === 0 && result.summary.correctCount > 0 && applauseEnabled) {
         playApplause();
       }
     } catch (err) {
