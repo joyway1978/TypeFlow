@@ -51,6 +51,8 @@ export function usePractice() {
   }, [currentWordIndex]);
 
   const confirmWord = useCallback(() => {
+    if (isAllWordsDone) return;
+
     const input = wordInputs[currentWordIndex] ?? '';
     const target = words[currentWordIndex] ?? '';
 
@@ -62,7 +64,7 @@ export function usePractice() {
     });
 
     setCurrentWordIndex(prev => prev + 1);
-  }, [wordInputs, words, currentWordIndex]);
+  }, [wordInputs, words, currentWordIndex, isAllWordsDone]);
 
   const goBackWord = useCallback(() => {
     if (currentWordIndex <= 0) return;
