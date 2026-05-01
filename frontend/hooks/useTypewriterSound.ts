@@ -1,10 +1,34 @@
 'use client';
-import { useCallback, useRef } from 'react';
+import { useCallback, useRef, useState, useEffect } from 'react';
+
+const STORAGE_KEY = 'typeflow-sound-enabled';
 
 export function useTypewriterSound() {
   const audioContextRef = useRef<AudioContext | null>(null);
+  // 默认关闭音效，从 localStorage 读取设置
+  const [enabled, setEnabled] = useState(false);
+
+  // 初始化时从 localStorage 读取
+  useEffect(() => {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored !== null) {
+      setEnabled(stored === 'true');
+    }
+  }, []);
+
+  // 切换音效开关
+  const toggleSound = useCallback(() => {
+    setEnabled(prev => {
+      const newValue = !prev;
+      localStorage.setItem(STORAGE_KEY, String(newValue));
+      return newValue;
+    });
+  }, []);
 
   const playKeySound = useCallback(() => {
+    // 音效默认关闭
+    if (!enabled) return;
+
     if (!audioContextRef.current) {
       audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
     }
@@ -62,7 +86,7 @@ export function useTypewriterSound() {
     noiseFilter.connect(noiseGain);
     noiseGain.connect(ctx.destination);
     noise.start(now);
-  }, []);
+  }, [enabled]);
 
-  return { playKeySound };
+  return { playKeySound, enabled, toggleSound };
 }
