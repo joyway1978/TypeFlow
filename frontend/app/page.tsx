@@ -49,6 +49,8 @@ export default function Home() {
     if (!currentSentence) return;
     startListening();
     await playAudio(currentSentence.text);
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    await playAudio(currentSentence.text);
     startTyping();
   }, [currentSentence, playAudio, startListening, startTyping]);
 
@@ -107,7 +109,7 @@ export default function Home() {
               onChange={updateCurrentWord}
               onConfirm={confirmWord}
               onGoBack={goBackWord}
-              disabled={isLoading || phase === 'listening'}
+              disabled={isLoading}
             />
           </div>
         )}
