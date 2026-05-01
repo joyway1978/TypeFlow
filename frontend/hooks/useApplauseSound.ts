@@ -3,6 +3,12 @@ import { useCallback, useRef, useState, useEffect } from 'react';
 
 const STORAGE_KEY = 'typeflow-applause-enabled';
 
+declare global {
+  interface Window {
+    webkitAudioContext?: typeof AudioContext;
+  }
+}
+
 export function useApplauseSound() {
   const audioContextRef = useRef<AudioContext | null>(null);
   // 默认开启音效，从 localStorage 读取设置
@@ -16,8 +22,17 @@ export function useApplauseSound() {
     }
   }, []);
 
+  // 组件卸载时关闭 AudioContext
+  useEffect(() => {
+    return () => {
+      if (audioContextRef.current?.state !== 'closed') {
+        audioContextRef.current?.close();
+      }
+    };
+  }, []);
+
   // 切换音效开关
-  const toggle = useCallback(() => {
+  const toggleSound = useCallback(() => {
     setEnabled(prev => {
       const newValue = !prev;
       localStorage.setItem(STORAGE_KEY, String(newValue));
@@ -78,7 +93,7 @@ export function useApplauseSound() {
 
     try {
       if (!audioContextRef.current) {
-        audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+        audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
       }
 
       const ctx = audioContextRef.current;
@@ -106,5 +121,5 @@ export function useApplauseSound() {
     }
   }, [enabled, playClap]);
 
-  return { play, enabled, toggle };
+  return { play, enabled, toggleSound };
 }
