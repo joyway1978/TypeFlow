@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { usePractice } from '@/hooks/usePractice';
 import { useAudio } from '@/hooks/useAudio';
+import { useApplauseSound } from '@/hooks/useApplauseSound';
 import { PaperSheet } from '@/components/PaperSheet';
 import { InteractiveSentence } from '@/components/InteractiveSentence';
 import { ReplayButton } from '@/components/ReplayButton';
@@ -35,6 +36,8 @@ export default function Home() {
   } = usePractice();
 
   const { play: playAudio, replay, isPlaying, isLoading: audioLoading } = useAudio();
+
+  const { enabled: applauseEnabled, toggleSound: toggleApplause } = useApplauseSound();
 
   const submittedRef = useRef(false);
 
@@ -153,6 +156,21 @@ export default function Home() {
           <ProgressBar current={currentIndex + 1} total={totalSentences} />
         </div>
       )}
+
+      <div className="mt-6 flex items-center gap-3">
+        {/* 掌声音效开关 */}
+        <button
+          onClick={toggleApplause}
+          className={`p-2 rounded-full transition-colors ${
+            applauseEnabled
+              ? 'bg-amber-100 text-amber-700 hover:bg-amber-200'
+              : 'bg-stone-200 text-stone-500 hover:bg-stone-300'
+          }`}
+          title={applauseEnabled ? '关闭掌声' : '开启掌声'}
+        >
+          <span className="text-sm">{applauseEnabled ? '👏' : '🔇'}</span>
+        </button>
+      </div>
 
       <p className="mt-8 font-serif text-xs text-ink-faded">
         Space to confirm &middot; Backspace to go back &middot; Enter for next
