@@ -12,6 +12,13 @@ from pydantic import BaseModel, Field
 app = FastAPI(title="TypeFlow Backend")
 
 # --------------------
+# Health check endpoint
+# --------------------
+@app.get("/")
+def root():
+    return {"status": "ok", "message": "TypeFlow Backend is running"}
+
+# --------------------
 # CORS (dev: allow all)
 # --------------------
 app.add_middleware(
