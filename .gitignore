@@ -33,5 +33,8 @@ Thumbs.db
 # Backend cache
 backend/cache/
 
+# Git worktrees
+.worktrees/
+
 # UV lock (generated, keep pyproject.toml as source of truth)
 # backend/uv.lock
