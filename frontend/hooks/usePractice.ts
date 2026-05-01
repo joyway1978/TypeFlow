@@ -1,5 +1,5 @@
 'use client';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { sentences } from '@/lib/sentences';
 import { CheckResponse, PracticePhase, WordStatus } from '@/lib/types';
 import { fetchCheck } from '@/lib/api';
@@ -19,6 +19,17 @@ export function usePractice() {
   const [wordStatuses, setWordStatuses] = useState<WordStatus[]>([]);
 
   const currentSentence = sentences[currentIndex] ?? null;
+
+  // Auto-initialize words when currentIndex changes
+  useEffect(() => {
+    if (currentSentence) {
+      const wordList = currentSentence.text.split(' ');
+      setWords(wordList);
+      setWordInputs(new Array(wordList.length).fill(''));
+      setWordStatuses(new Array(wordList.length).fill('pending'));
+      setCurrentWordIndex(0);
+    }
+  }, [currentIndex, currentSentence]);
   const totalSentences = sentences.length;
   const isLastSentence = currentIndex >= totalSentences - 1;
   const isAllWordsDone = words.length > 0 && currentWordIndex >= words.length;
@@ -28,15 +39,7 @@ export function usePractice() {
     setFeedback(null);
     setUserInput('');
     setError(null);
-
-    if (currentSentence) {
-      const wordList = currentSentence.text.split(' ');
-      setWords(wordList);
-      setWordInputs(new Array(wordList.length).fill(''));
-      setWordStatuses(new Array(wordList.length).fill('pending'));
-      setCurrentWordIndex(0);
-    }
-  }, [currentSentence]);
+  }, []);
 
   const startTyping = useCallback(() => {
     setPhase('typing');
@@ -99,9 +102,8 @@ export function usePractice() {
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Check failed');
       setPhase('typing');
-      const wordsCount = words.length;
-      setWordInputs(new Array(wordsCount).fill(''));
-      setWordStatuses(new Array(wordsCount).fill('pending'));
+      setWordInputs(new Array(words.length).fill(''));
+      setWordStatuses(new Array(words.length).fill('pending'));
       setCurrentWordIndex(0);
     } finally {
       setIsLoading(false);
@@ -118,10 +120,6 @@ export function usePractice() {
     setFeedback(null);
     setUserInput('');
     setError(null);
-    setWords([]);
-    setWordInputs([]);
-    setWordStatuses([]);
-    setCurrentWordIndex(0);
   }, [isLastSentence]);
 
   return {
