@@ -1,6 +1,7 @@
 'use client';
 import { useRef, useEffect } from 'react';
 import type { WordStatus } from '@/lib/types';
+import { useTypewriterSound } from '@/hooks/useTypewriterSound';
 
 interface InteractiveSentenceProps {
   words: string[];
@@ -24,6 +25,7 @@ export function InteractiveSentence({
   disabled = false,
 }: InteractiveSentenceProps) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const { playKeySound } = useTypewriterSound();
 
   useEffect(() => {
     if (!disabled && inputRef.current) {
@@ -32,6 +34,11 @@ export function InteractiveSentence({
   }, [disabled, currentWordIndex]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    // 播放打字机音效（除了空格和退格）
+    if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      playKeySound();
+    }
+
     if (e.key === ' ') {
       e.preventDefault();
       if (!disabled && wordInputs[currentWordIndex]?.trim().length > 0) {
