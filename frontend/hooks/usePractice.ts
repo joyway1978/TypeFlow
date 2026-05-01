@@ -116,7 +116,7 @@ export function usePractice() {
     } finally {
       setIsLoading(false);
     }
-  }, [currentSentence, wordInputs, words]);
+  }, [currentSentence, wordInputs, words, applauseEnabled, playApplause]);
 
   const nextSentence = useCallback(() => {
     if (isLastSentence) {
