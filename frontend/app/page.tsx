@@ -52,6 +52,18 @@ export default function Home() {
     }
   }, [phase]);
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (phase === 'feedback' && e.key === 'Enter') {
+        e.preventDefault();
+        nextSentence();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [phase, nextSentence]);
+
   const handlePlay = useCallback(async () => {
     if (!currentSentence) return;
     startListening();
@@ -146,7 +158,7 @@ export default function Home() {
       )}
 
       <p className="mt-8 font-serif text-xs text-ink-faded">
-        Press Space to confirm &middot; Backspace to go back &middot; Listen, type, learn.
+        Press Space to confirm &middot; Backspace to go back &middot; Enter for next
       </p>
     </main>
   );
