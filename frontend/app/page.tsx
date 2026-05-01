@@ -71,10 +71,9 @@ export default function Home() {
 
   const showSentence = phase === 'idle' || phase === 'listening';
   const showPlayButton = phase === 'idle' || phase === 'listening' || phase === 'typing';
-  const showInput = phase === 'typing' || phase === 'checking';
+  const showInput = phase === 'typing';
   const showFeedback = phase === 'feedback' && feedback;
   const showNext = phase === 'feedback';
-  const isInputDimmed = phase === 'typing';
 
   const currentWordValue = wordInputs[currentWordIndex] ?? '';
   const currentWordTarget = words[currentWordIndex] ?? '';
@@ -92,7 +91,6 @@ export default function Home() {
               words={words}
               currentWordIndex={currentWordIndex}
               wordStatuses={wordStatuses}
-              dimmed={isInputDimmed}
             />
           </div>
         )}

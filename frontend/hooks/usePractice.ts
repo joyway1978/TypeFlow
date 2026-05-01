@@ -99,10 +99,14 @@ export function usePractice() {
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Check failed');
       setPhase('typing');
+      const wordsCount = words.length;
+      setWordInputs(new Array(wordsCount).fill(''));
+      setWordStatuses(new Array(wordsCount).fill('pending'));
+      setCurrentWordIndex(0);
     } finally {
       setIsLoading(false);
     }
-  }, [currentSentence, wordInputs]);
+  }, [currentSentence, wordInputs, words]);
 
   const nextSentence = useCallback(() => {
     if (isLastSentence) {
