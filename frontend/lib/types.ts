@@ -8,21 +8,38 @@ export interface CheckReportItem {
   status: TokenStatus;
 }
 
+export interface CheckItem {
+  word: string;
+  user_input: string;
+  status: 'correct' | 'wrong' | 'ignored';
+  index: number;
+}
+
 export interface CheckSummary {
   correctCount: number;
   ignoredCount: number;
   wrongCount: number;
 }
 
+export interface CheckResultSummary {
+  total: number;
+  correctCount: number;
+  wrongCount: number;
+  ignoredCount: number;
+}
+
 export interface CheckResponse {
-  normalizedTargetTokens: string[];
-  normalizedUserTokens: string[];
-  report: CheckReportItem[];
-  summary: CheckSummary;
+  normalizedTargetTokens?: string[];
+  normalizedUserTokens?: string[];
+  report?: CheckReportItem[];
+  summary?: CheckSummary | CheckResultSummary;
+  items?: CheckItem[];
 }
 
 export interface TTSResponse {
   audioUrl: string;
+  audio_key?: string;
+  url?: string;
 }
 
 export interface Sentence {

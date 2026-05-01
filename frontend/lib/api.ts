@@ -12,16 +12,16 @@ export async function fetchTTS(text: string): Promise<TTSResponse> {
   return res.json();
 }
 
-export async function fetchCheck(targetText: string, userText: string): Promise<CheckResponse> {
+export async function fetchCheck(original: string, user_input: string): Promise<CheckResponse> {
   const res = await fetch(`${API_BASE}/api/check`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ targetText, userText }),
+    body: JSON.stringify({ original, user_input }),
   });
   if (!res.ok) throw new Error(`Check request failed: ${res.status}`);
   return res.json();
 }
 
 export function getAudioUrl(key: string): string {
-  return `${API_BASE}${key}`;
+  return `${API_BASE}/api/tts/audio/${key}`;
 }
