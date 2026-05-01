@@ -4,7 +4,6 @@ import { usePractice } from '@/hooks/usePractice';
 import { useAudio } from '@/hooks/useAudio';
 import { PaperSheet } from '@/components/PaperSheet';
 import { InteractiveSentence } from '@/components/InteractiveSentence';
-import { PlayButton } from '@/components/PlayButton';
 import { ReplayButton } from '@/components/ReplayButton';
 import { FeedbackReport } from '@/components/FeedbackReport';
 import { StatsBar } from '@/components/StatsBar';
@@ -46,11 +45,25 @@ export default function Home() {
     }
   }, [isAllWordsDone, phase, submitAnswer]);
 
+  const handlePlay = useCallback(async () => {
+    if (!currentSentence) return;
+    startListening();
+    await playAudio(currentSentence.text);
+    startTyping();
+  }, [currentSentence, playAudio, startListening, startTyping]);
+
   useEffect(() => {
     if (phase !== 'typing') {
       submittedRef.current = false;
     }
   }, [phase]);
+
+  // Auto-start audio on mount and when sentence changes
+  useEffect(() => {
+    if (phase === 'idle' && currentSentence) {
+      handlePlay();
+    }
+  }, [phase, currentSentence, handlePlay]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -64,13 +77,6 @@ export default function Home() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [phase, nextSentence]);
 
-  const handlePlay = useCallback(async () => {
-    if (!currentSentence) return;
-    startListening();
-    await playAudio(currentSentence.text);
-    startTyping();
-  }, [currentSentence, playAudio, startListening, startTyping]);
-
   const handleReplay = useCallback(() => {
     replay();
   }, [replay]);
@@ -79,11 +85,10 @@ export default function Home() {
     nextSentence();
   }, [nextSentence]);
 
-  const showPlayButton = phase === 'idle';
-  const showInput = phase === 'typing' || phase === 'listening';
+  const showInput = phase === 'idle' || phase === 'typing' || phase === 'listening';
   const showFeedback = phase === 'feedback' && feedback;
   const showNext = phase === 'feedback';
-  const showReplay = phase === 'listening' || phase === 'typing' || phase === 'feedback';
+  const showReplay = phase !== 'feedback';
 
   return (
     <main className="flex min-h-screen flex-col items-center px-4 py-8 md:px-12 md:py-16">
@@ -103,16 +108,6 @@ export default function Home() {
               onConfirm={confirmWord}
               onGoBack={goBackWord}
               disabled={isLoading || phase === 'listening'}
-            />
-          </div>
-        )}
-
-        {showPlayButton && (
-          <div className="mb-6">
-            <PlayButton
-              isPlaying={isPlaying}
-              isLoading={audioLoading}
-              onClick={handlePlay}
             />
           </div>
         )}
@@ -158,7 +153,7 @@ export default function Home() {
       )}
 
       <p className="mt-8 font-serif text-xs text-ink-faded">
-        Press Space to confirm &middot; Backspace to go back &middot; Enter for next
+        Space to confirm &middot; Backspace to go back &middot; Enter for next
       </p>
     </main>
   );
